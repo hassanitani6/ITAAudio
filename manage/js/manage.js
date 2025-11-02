@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   </style>
 </head>
 <body>
-  <img src='https://hassanitani6.github.io/ITAAudio/assets/logo.png' class='logo' alt='ITA Prints Logo'>
+  <img src='https://hassanitani6.github.io/ITAAudio/manage/assets/logo.png' class='logo' alt='ITA Prints Logo'>
   <h1>${artist} – ${album}</h1>
   ${genre ? `<p><em>${genre}</em></p>` : ""}
   <div>
