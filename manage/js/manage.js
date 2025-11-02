@@ -1,6 +1,24 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const form = document.getElementById("albumForm");
   const baseUrl = "https://hassanitani6.github.io/ITAAudio/";
+  const shortcodeInput = document.getElementById("shortcode");
+
+  // 🔢 Auto-suggest next short code from albums.json
+  try {
+    const res = await fetch(baseUrl + "albums/albums.json");
+    if (res.ok) {
+      const albums = await res.json();
+      const codes = albums
+        .map((_, i) => i + 1) // assume sequential numbering
+        .map(n => "a" + n.toString().padStart(2, "0"));
+      const nextCode = "a" + (codes.length + 1).toString().padStart(2, "0");
+      shortcodeInput.placeholder = nextCode;
+    } else {
+      shortcodeInput.placeholder = "a01";
+    }
+  } catch {
+    shortcodeInput.placeholder = "a01";
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -11,21 +29,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const spotify = document.getElementById("spotify").value.trim();
     const apple = document.getElementById("apple").value.trim();
     const youtube = document.getElementById("youtube").value.trim();
-    let shortcode = document.getElementById("shortcode").value.trim();
+    let shortcode = shortcodeInput.value.trim() || shortcodeInput.placeholder;
 
     if (!artist || !album || !spotify) {
       alert("Please fill all required fields.");
       return;
     }
 
-    if (!shortcode)
-      shortcode = "a" + Math.floor(Math.random() * 1000).toString().padStart(2, "0");
-
     const slug = (artist + "-" + album)
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
 
+    // 🎨 Album page HTML
     const albumHtml = `<!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -56,30 +72,27 @@ document.addEventListener("DOMContentLoaded", () => {
   <p class='note'>If it didn’t open automatically, tap a button above.</p>
 </body></html>`;
 
+    // 🔁 NFC redirect
     const redirectHtml = `<meta http-equiv='refresh' content='0;url=${baseUrl}albums/${slug}.html'>`;
 
     const albumEntry = { title: `${artist} – ${album}`, file: `${slug}.html` };
 
-    // Create ZIP with HTML files + updated albums.json
+    // 📦 Create ZIP with all files
     const zip = new JSZip();
-
-    // Add album HTML
     zip.file(`albums/${slug}.html`, albumHtml);
-
-    // Add redirect page
     zip.file(`${shortcode}/index.html`, redirectHtml);
 
-    // Try to load current albums.json if available (for convenience)
+    // 🗂️ Update albums.json
     try {
       const res = await fetch(baseUrl + "albums/albums.json");
-      const existing = await res.json();
+      const existing = res.ok ? await res.json() : [];
       existing.push(albumEntry);
       zip.file("albums/albums.json", JSON.stringify(existing, null, 2));
     } catch {
       zip.file("albums/albums.json", JSON.stringify([albumEntry], null, 2));
     }
 
-    // Download
+    // 💾 Trigger download
     const content = await zip.generateAsync({ type: "blob" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(content);
@@ -89,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("✅ Files created! ZIP downloading...");
   });
 
+  // Press Enter to submit
   document.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
