@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITA Audio Manager</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+<script defer src="js/manage.js"></script>
+</head>
+<body>
+  <div class="container">
+    <img src="assets/logo.png" alt="ITA Prints Logo" class="logo">
+    <h1>Add New Album</h1>
+    <form id="albumForm">
+      <label>Artist*</label>
+      <input type="text" id="artist" required>
+      <label>Album*</label>
+      <input type="text" id="album" required>
+      <label>Genre</label>
+      <input type="text" id="genre">
+      <label>Spotify Link*</label>
+      <input type="url" id="spotify" required placeholder="https://open.spotify.com/album/...">
+      <label>Apple Music Link</label>
+      <input type="url" id="apple" placeholder="https://music.apple.com/...">
+      <label>YouTube Music Link</label>
+      <input type="url" id="youtube" placeholder="https://music.youtube.com/...">
+      <label>Short Code</label>
+      <input type="text" id="shortcode" placeholder="a01">
+      <button type="submit" id="generateBtn">Generate Files</button>
+    </form>
+  </div>
+</body>
+</html>

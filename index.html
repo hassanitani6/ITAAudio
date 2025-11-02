@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>ITA Audio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .logo {
+      max-width: 140px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 1.8em;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #555;
+      margin-bottom: 30px;
+    }
+    .album-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .album-btn {
+      display: inline-block;
+      background-color: #000;
+      color: white;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .album-btn:hover {
+      background-color: #333;
+      transform: scale(1.05);
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.8em;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <img
+    src="https://hassanitani6.github.io/ITAAudio/assets/logo.png"
+    class="logo"
+    alt="ITA Prints Logo"
+  />
+  <h1>ITA Audio Albums</h1>
+  <p>Tap a title below to open the album.</p>
+
+  <div id="albumList" class="album-list">Loading albums...</div>
+
+  <footer>© ITA Prints</footer>
+
+  <script>
+    async function loadAlbums() {
+      try {
+        const response = await fetch('albums/');
+        const text = await response.text();
+        const parser = new DOMParser();
+        const htmlDoc = parser.parseFromString(text, 'text/html');
+        const links = [...htmlDoc.querySelectorAll('a')]
+          .map(a => a.getAttribute('href'))
+          .filter(h => h && h.endsWith('.html') && h !== 'index.html');
+
+        if (links.length === 0) {
+          document.getElementById('albumList').innerHTML = '<p>No albums found.</p>';
+          return;
+        }
+
+        const container = document.getElementById('albumList');
+        container.innerHTML = '';
+        links.forEach(link => {
+          const name = link
+            .replace('.html', '')
+            .replace(/-/g, ' ')
+            .replace(/\b\w/g, c => c.toUpperCase());
+          const btn = document.createElement('a');
+          btn.href = `albums/${link}`;
+          btn.className = 'album-btn';
+          btn.textContent = name;
+          container.appendChild(btn);
+        });
+      } catch (err) {
+        document.getElementById('albumList').innerHTML = '<p>Unable to load albums.</p>';
+        console.error('Error loading albums:', err);
+      }
+    }
+
+    loadAlbums();
+  </script>
+</body>
+</html>
